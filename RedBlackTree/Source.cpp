@@ -36,12 +36,23 @@ public:
 	void rotateLeft(Node<T>* ptr);
 	void rotateRight(Node<T>* ptr);
 	void insert(T value);
+	void erase(T value);
+	void clear();
+	T minimum();
+	T maximum();
 
 private:
 	Node<T>* root;
 	Node<T>* nullRoot;
 
+	Node<T>* findMinimum(Node<T>* ptr);
+	Node<T>* findMaximum(Node<T>* ptr);
+
 	void fixInsertion(Node<T>* ptr);
+	void deleteNodeHelper(Node<T>* ptr, T value);
+	void rbTransplant(Node<T>* u, Node<T>* v);
+	void fixDelete(Node<T>* ptr);
+	
 };
 
 
@@ -157,6 +168,26 @@ void RedBlackTree<T>::insert(T value)
 }
 
 template<class T>
+Node<T>* RedBlackTree<T>::findMinimum(Node<T>* ptr)
+{
+	while (ptr->left != this->nullRoot)
+	{
+		ptr = ptr->left;
+	}
+	return ptr;
+}
+
+template<class T>
+Node<T>* RedBlackTree<T>::findMaximum(Node<T>* ptr)
+{
+	while (ptr->right != this->nullRoot)
+	{
+		ptr = ptr->right;
+	}
+	return ptr;
+}
+
+template<class T>
 void RedBlackTree<T>::fixInsertion(Node<T>* ptr)
 {
 	Node<T>* uncleNode;
@@ -184,58 +215,200 @@ void RedBlackTree<T>::fixInsertion(Node<T>* ptr)
 				leftRotate(ptr->parent->parent);
 			}
 		}
+		else
+		{
+			uncleNode = ptr->parent->parent->right;
+			if (uncleNode->color == Color::Red)
+			{
+				ptr->parent->color = Color::Black;
+				uncleNode->color = Color::Black;
+				ptr->parent->parent->color = Color::Red;
+				ptr = ptr->parent->parent;
+			}
+			else
+			{
+				if (ptr == ptr->parent->right)
+				{
+					ptr = ptr->parent;
+					leftRotate(ptr);
+				}
+				ptr->parent->color = Color::Black;
+				ptr->parent->parent->color = Color::Red;
+				rightRotate(ptr->parent->parent);
+			}
+		}
 	}
 }
 
+template<class T>
+void RedBlackTree<T>::erase(T value)
+{
+	deleteNodeHelper(this->root, data);
+}
 
-/*
+template<class T>
+T RedBlackTree<T>::minimum()
+{
+	return findMinimum(this->root)->data;
+}
 
-		NodePtr u;
-		while (k->parent->color == 1) {
-			if (k->parent == k->parent->parent->right) {
-				u = k->parent->parent->left; // uncle
-				if (u->color == 1) {
-					// case 3.1
-					u->color = 0;
-					k->parent->color = 0;
-					k->parent->parent->color = 1;
-					k = k->parent->parent;
-				} else {
-					if (k == k->parent->left) {
-						// case 3.2.2
-						k = k->parent;
-						rightRotate(k);
-					}
-					// case 3.2.1
-					k->parent->color = 0;
-					k->parent->parent->color = 1;
-					leftRotate(k->parent->parent);
-				}
-			} else {
-				u = k->parent->parent->right; // uncle
+template<class T>
+T RedBlackTree<T>::maximum()
+{
+	return findMaximum(this->root)->data;
+}
 
-				if (u->color == 1) {
-					// mirror case 3.1
-					u->color = 0;
-					k->parent->color = 0;
-					k->parent->parent->color = 1;
-					k = k->parent->parent;	
-				} else {
-					if (k == k->parent->right) {
-						// mirror case 3.2.2
-						k = k->parent;
-						leftRotate(k);
-					}
-					// mirror case 3.2.1
-					k->parent->color = 0;
-					k->parent->parent->color = 1;
-					rightRotate(k->parent->parent);
-				}
+template<class T>
+void RedBlackTree<T>::deleteNodeHelper(Node<T>* ptr, T value)
+{
+	Node<T>* soughtNode = nullRoot, * x, * y;
+	while (ptr != this->nullRoot)
+	{
+		if (ptr->data == value)
+		{
+			soughtNode = ptr;
+		}
+		if (ptr->data <= value)
+		{
+			ptr = ptr->right;
+		}
+		else 
+		{
+			ptr = ptr->left;
+		}
+	}
+
+	if (soughtNode == this->nullRoot)
+	{
+		cout << "Ёлемент не найден!" << endl;
+		return;
+	}
+
+	y = soughtNode;
+	Color yOriginalColor = y->color;
+	if (soughtNode->left == TNULL) 
+	{
+		x = soughtNode->right;
+		rbTransplant(soughtNode, soughtNode->right);
+	}
+	else if (soughtNode->right == TNULL) 
+	{
+		x = soughtNode->left;
+		rbTransplant(soughtNode, soughtNode->left);
+	}
+	else 
+	{
+		y = findMinimum(soughtNode->right);
+		yOriginalColor = y->color;
+		x = y->right;
+		if (y->parent == soughtNode) {
+			x->parent = y;
+		}
+		else {
+			rbTransplant(y, y->right);
+			y->right = soughtNode->right;
+			y->right->parent = y;
+		}
+
+		rbTransplant(soughtNode, y);
+		y->left = soughtNode->left;
+		y->left->parent = y;
+		y->color = soughtNode->color;
+	}
+	delete soughtNode;
+	if (yOriginalColor == Color::Black)
+	{
+		fixDelete(x);
+	}
+}
+
+template<class T>
+void RedBlackTree<T>::rbTransplant(Node<T>* u, Node<T>* v)
+{
+	if (u->parent == nullptr) 
+	{
+		this->root = v;
+	}
+	else if (u == u->parent->left) 
+	{
+		u->parent->left = v;
+	}
+	else 
+	{
+		u->parent->right = v;
+	}
+	v->parent = u->parent;
+}
+
+template<class T>
+void RedBlackTree<T>::fixDelete(Node<T>* ptr)
+{
+	NodePtr s;
+	while (ptr != root && ptr->color == 0) {
+		if (ptr == ptr->parent->left) {
+			s = ptr->parent->right;
+			if (s->color == 1) {
+				// case 3.1
+				s->color = 0;
+				ptr->parent->color = 1;
+				leftRotate(ptr->parent);
+				s = ptr->parent->right;
 			}
-			if (k == root) {
-				break;
+
+			if (s->left->color == 0 && s->right->color == 0) {
+				// case 3.2
+				s->color = 1;
+				ptr = ptr->parent;
+			}
+			else {
+				if (s->right->color == 0) {
+					// case 3.3
+					s->left->color = 0;
+					s->color = 1;
+					rightRotate(s);
+					s = ptr->parent->right;
+				}
+
+				// case 3.4
+				s->color = ptr->parent->color;
+				ptr->parent->color = 0;
+				s->right->color = 0;
+				leftRotate(ptr->parent);
+				ptr = root;
 			}
 		}
-		root->color = 0;
+		else {
+			s = ptr->parent->left;
+			if (s->color == 1) {
+				// case 3.1
+				s->color = 0;
+				ptr->parent->color = 1;
+				rightRotate(ptr->parent);
+				s = ptr->parent->left;
+			}
 
-*/
+			if (s->right->color == 0 && s->right->color == 0) {
+				// case 3.2
+				s->color = 1;
+				ptr = ptr->parent;
+			}
+			else {
+				if (s->left->color == 0) {
+					// case 3.3
+					s->right->color = 0;
+					s->color = 1;
+					leftRotate(s);
+					s = ptr->parent->left;
+				}
+
+				// case 3.4
+				s->color = ptr->parent->color;
+				ptr->parent->color = 0;
+				s->left->color = 0;
+				rightRotate(ptr->parent);
+				ptr = root;
+			}
+		}
+	}
+	ptr->color = 0;
+}
