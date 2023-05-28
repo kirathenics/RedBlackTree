@@ -37,6 +37,7 @@ public:
 	void rotateRight(Node<T>* ptr);
 	void insert(T value);
 	void erase(T value);
+	Node<T>* find(T value);
 	void clear();
 	T minimum();
 	T maximum();
@@ -52,7 +53,7 @@ private:
 	void deleteNodeHelper(Node<T>* ptr, T value);
 	void rbTransplant(Node<T>* u, Node<T>* v);
 	void fixDelete(Node<T>* ptr);
-	
+	Node<T>* findNode(Node<T>* ptr, T value);
 };
 
 
@@ -247,6 +248,12 @@ void RedBlackTree<T>::erase(T value)
 }
 
 template<class T>
+Node<T>* RedBlackTree<T>::find(T value)
+{
+	return findNode(this->root, value);
+}
+
+template<class T>
 T RedBlackTree<T>::minimum()
 {
 	return findMinimum(this->root)->data;
@@ -411,4 +418,14 @@ void RedBlackTree<T>::fixDelete(Node<T>* ptr)
 		}
 	}
 	ptr->color = 0;
+}
+
+template<class T>
+Node<T>* RedBlackTree<T>::findNode(Node<T>* ptr, T value)
+{
+	if (value == ptr->data || ptr == this->nullRoot)
+	{
+		return ptr;
+	}
+	return (value > ptr->data) ? findNode(ptr->right, value) : findNode(ptr->left, value);
 }
