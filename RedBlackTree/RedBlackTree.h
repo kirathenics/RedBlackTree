@@ -4,6 +4,10 @@
 #include <fstream>
 #include <cstdlib>
 #include <string>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/utils/logger.hpp>
 using namespace std;
 
 enum class Color
@@ -43,7 +47,7 @@ public:
 	Node<T>* find(T value);
 	T minimum();
 	T maximum();
-	void printTree();
+	void print();
 	void makeImage();
 	void clear();
 
@@ -153,7 +157,7 @@ inline T RedBlackTree<T>::maximum()
 }
 
 template<class T>
-inline void RedBlackTree<T>::printTree()
+inline void RedBlackTree<T>::print()
 {
 	if (this->root) 
 	{
@@ -171,20 +175,12 @@ inline void RedBlackTree<T>::makeImage()
 	file << "}\n";
 	file.close();
 
-	/*const char* dotPath = R"(C:\Program Files\Graphviz\bin\dot.exe)";
-
-	const char* command = R"(dot -Tpng tree.dot -o tree.png)";
-	std::string fullCommand = std::string("\"") + dotPath + "\" " + command;
-	int result = system(fullCommand.c_str());*/
-	const char* dotPath = "C:/Program Files/Graphviz/bin/dot.exe";
-
-	/*const char* command = "dot -Tpng tree.dot -o tree.png";
-	std::string fullCommand = std::string(dotPath) + " " + command;
-	int result = system(fullCommand.c_str());*/
-
 	system("dot -Tpng tree.dot -o tree.png");
-	//system("C:\\Program Files\\Graphviz\\bin\\dot.exe dot -Tpng tree.dot -o tree.png");
-	//system("makeImage.bat");
+	cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+	cv::Mat img = cv::imread("tree.png", cv::ImreadModes::IMREAD_COLOR);
+	cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
+	cv::imshow("Display window", img);
+	cv::waitKey(0);
 }
 
 template<class T>
@@ -500,7 +496,7 @@ inline void RedBlackTree<T>::deleteTree(Node<T>* ptr)
 	deleteTree(ptr->left);
 	deleteTree(ptr->right);
 
-	cout << "\n Deleting node: " << ptr->data;
+	//cout << "\n Deleting node: " << ptr->data;
 	delete ptr;
 }
 

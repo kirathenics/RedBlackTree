@@ -1,15 +1,13 @@
 digraph BinarySearchTree {
-"17" [color=black]
-"17" -> "8"
-"8" [color=red]
-"8" -> "5"
+"7" [color=black]
+"7" -> "5"
 "5" [color=black]
-"8" -> "15"
-"15" [color=black]
-"17" -> "40"
-"40" [color=red]
-"40" -> "18"
-"18" [color=black]
-"40" -> "80"
-"80" [color=black]
+"5" -> "2"
+"2" [color=red]
+"7" -> "84"
+"84" [color=black]
+"84" -> "35"
+"35" [color=red]
+"84" -> "235"
+"235" [color=red]
 }
