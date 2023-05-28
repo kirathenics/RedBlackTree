@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
+#include <string>
 using namespace std;
 
 enum class Color
@@ -64,49 +66,6 @@ private:
 
 	void printNode(Node<T>* root, string indent, bool last);
 	void writeNode(Node<T>* ptr, ofstream& file);
-
-	/*void printDot(Node<T>* node, std::ofstream& file) {
-		if (node == this->nullRoot) {
-			return;
-		}
-
-		string sColor;
-		if (node->color == Color::Red) sColor = "red";
-		else sColor = "black";
-		file << "\"" << node->data << "\" [color=" << sColor << "]" << endl;
-		if (node->left != this->nullRoot) {
-			file << "\"" << node->data << "\" -> \"" << node->left->data << "\"\n";
-			printDot(node->left, file);
-		}
-
-		if (node->right != this->nullRoot) {
-			file << "\"" << node->data << "\" -> \"" << node->right->data << "\"\n";
-			printDot(node->right, file);
-		}
-	}
-
-	void printHelper(Node<T>* root, string indent, bool last) {
-		// print the tree structure on the screen
-		if (root != this->nullRoot) {
-			cout << indent;
-			if (last) {
-				cout << "R----";
-				indent += "     ";
-			}
-			else {
-				cout << "L----";
-				indent += "|    ";
-			}
-
-			string sColor;
-			if (root->color == Color::Red) sColor = "RED";
-			else sColor = "BLACK";
-			cout << root->data << "(" << sColor << ")" << endl;
-			printHelper(root->left, indent, false);
-			printHelper(root->right, indent, true);
-		}
-		// cout<<root->left->data<<endl;
-	}*/
 };
 
 template<class T>
@@ -212,7 +171,20 @@ inline void RedBlackTree<T>::makeImage()
 	file << "}\n";
 	file.close();
 
+	/*const char* dotPath = R"(C:\Program Files\Graphviz\bin\dot.exe)";
+
+	const char* command = R"(dot -Tpng tree.dot -o tree.png)";
+	std::string fullCommand = std::string("\"") + dotPath + "\" " + command;
+	int result = system(fullCommand.c_str());*/
+	const char* dotPath = "C:/Program Files/Graphviz/bin/dot.exe";
+
+	/*const char* command = "dot -Tpng tree.dot -o tree.png";
+	std::string fullCommand = std::string(dotPath) + " " + command;
+	int result = system(fullCommand.c_str());*/
+
 	system("dot -Tpng tree.dot -o tree.png");
+	//system("C:\\Program Files\\Graphviz\\bin\\dot.exe dot -Tpng tree.dot -o tree.png");
+	//system("makeImage.bat");
 }
 
 template<class T>
@@ -464,7 +436,7 @@ inline void RedBlackTree<T>::fixDelete(Node<T>* ptr)
 				tempNode = ptr->parent->left;
 			}
 
-			if (tempNode->right->color == Color::Black && tempNode->right->color == Color::Black)
+			if (tempNode->right->color == Color::Black)
 			{
 				tempNode->color = Color::Red;
 				ptr = ptr->parent;
