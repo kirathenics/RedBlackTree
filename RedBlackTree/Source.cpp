@@ -5,7 +5,7 @@ enum Action
 	Exit,
 	Insert,
 	Erase,
-	Search, 
+	Find, 
 	Minimum,
 	Maximum,
 	Print,
@@ -43,6 +43,7 @@ int main()
 			cin >> value;
 
 			tree.insert(value);
+			cout << "Ёлемент добавлен!" << endl;
 			break;
 		}
 
@@ -52,29 +53,32 @@ int main()
 			int value;
 			cin >> value;
 
-			tree.erase(value);
+			if (tree.erase(value))
+			{
+				cout << "Ёлемент удален!" << endl;
+			}
 			break;
 		}
 
-		case Action::Search:
+		case Action::Find:
 		{
 			cout << "¬ведите значение элемента: ";
 			int value;
 			cin >> value;
 
-			cout << tree.find(value) << endl;
+			cout << (tree.find(value)->data ? "Ёлемент найден" : "“акого элемента нет!") << endl;
 			break;
 		}
 
 		case Action::Minimum:
 		{
-			cout << tree.minimum() << endl;
+			cout << "«начение минимального элемента:" << tree.minimum() << endl;
 			break;
 		}
 
 		case Action::Maximum:
 		{
-			cout << tree.maximum() << endl;
+			cout << "«начение максимального элемента:" << tree.maximum() << endl;
 			break;
 		}
 

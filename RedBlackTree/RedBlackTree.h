@@ -43,7 +43,7 @@ public:
 	~RedBlackTree();
 
 	void insert(T value);
-	void erase(T value);
+	bool erase(T value);
 	Node<T>* find(T value);
 	T minimum();
 	T maximum();
@@ -59,7 +59,7 @@ private:
 	void rotateRight(Node<T>* ptr);
 
 	void fixInsertion(Node<T>* ptr);
-	void deleteNode(Node<T>* ptr, T value);
+	bool deleteNode(Node<T>* ptr, T value);
 	void moveNode(Node<T>* u, Node<T>* v);
 	void fixDelete(Node<T>* ptr);
 
@@ -133,9 +133,9 @@ inline void RedBlackTree<T>::insert(T value)
 }
 
 template<class T>
-inline void RedBlackTree<T>::erase(T value)
+inline bool RedBlackTree<T>::erase(T value)
 {
-	deleteNode(this->root, value);
+	return deleteNode(this->root, value);
 }
 
 template<class T>
@@ -301,7 +301,7 @@ inline void RedBlackTree<T>::fixInsertion(Node<T>* ptr)
 }
 
 template<class T>
-inline void RedBlackTree<T>::deleteNode(Node<T>* ptr, T value)
+inline bool RedBlackTree<T>::deleteNode(Node<T>* ptr, T value)
 {
 	Node<T>* soughtNode = nullRoot, * x, * y;
 	while (ptr != this->nullRoot)
@@ -323,7 +323,7 @@ inline void RedBlackTree<T>::deleteNode(Node<T>* ptr, T value)
 	if (soughtNode == this->nullRoot)
 	{
 		cout << "Ёлемент не найден!" << endl;
-		return;
+		return false;
 	}
 
 	y = soughtNode;
@@ -362,6 +362,7 @@ inline void RedBlackTree<T>::deleteNode(Node<T>* ptr, T value)
 	{
 		fixDelete(x);
 	}
+	return true;
 }
 
 template<class T>
@@ -508,12 +509,12 @@ inline void RedBlackTree<T>::printNode(Node<T>* root, string indent, bool last)
 		cout << indent;
 		if (last) 
 		{
-			cout << "R----";
+			cout << "R---- ";
 			indent += "     ";
 		}
 		else 
 		{
-			cout << "L----";
+			cout << "L---- ";
 			indent += "|    ";
 		}
 
